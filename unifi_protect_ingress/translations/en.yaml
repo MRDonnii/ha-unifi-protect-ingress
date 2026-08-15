@@ -20,3 +20,9 @@ configuration:
   cloudflare_tunnel_token:
     name: Cloudflare Tunnel token
     description: Optional token for a dedicated remotely-managed tunnel. The tunnel route must point its public hostname to http://localhost:8099.
+  back_button_enabled:
+    name: Show back button
+    description: Show a floating back button above the Protect interface
+  back_button_target:
+    name: Back button HA destination
+    description: HA path or full URL opened by the button, for example /lovelace/home

@@ -45,6 +45,7 @@ with additional handling for UniFi OS applications that expect to run at the web
 - an ingress wrapper that embeds the HTTPS endpoint without rewriting Protect's SPA routes
 - automatic local embedding through the current HA hostname and port 8099 when no public URL is set
 - per-installation root-proxy authorization and an administrator-only HA panel
+- an optional floating back button with a configurable Home Assistant destination
 
 ## Quick installation
 
@@ -108,7 +109,16 @@ rewrite_paths:
 debug: false
 public_url: ""
 cloudflare_tunnel_token: ""
+back_button_enabled: false
+back_button_target: "/"
 ```
+
+### Optional back button
+
+Enable `back_button_enabled` to show a floating arrow above Protect. Set
+`back_button_target` to an HA path such as `/lovelace/home` or `/dashboard-camera/0`. A complete
+`http://` or `https://` Home Assistant URL is also accepted when the destination uses another
+hostname. The default `/` returns to the Home Assistant root page.
 
 If a browser error shows another root-relative UniFi path, add that path to `rewrite_paths`, turn
 on `debug`, restart, and reload the sidebar page without cache.
