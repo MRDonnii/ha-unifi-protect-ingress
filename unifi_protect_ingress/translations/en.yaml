@@ -26,3 +26,12 @@ configuration:
   back_button_target:
     name: Back button HA destination
     description: HA path or full URL opened by the button, for example /lovelace/home
+  navbar_enabled:
+    name: Show Home Assistant navbar
+    description: Show a floating navigation bar over the bottom of Protect
+  navbar_items:
+    name: Navbar buttons
+    description: One per line as icon|label|HA path. Leave the path empty to create a submenu group.
+  navbar_subitems:
+    name: Navbar submenu items
+    description: One per line as group label|icon|label|HA path

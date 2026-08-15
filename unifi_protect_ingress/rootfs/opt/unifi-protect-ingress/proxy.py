@@ -26,6 +26,7 @@ VERIFY_SSL = cfg.get("verify_ssl", False)
 DEBUG = cfg.get("debug", False)
 PUBLIC_URL = cfg.get("public_url", "").strip().rstrip("/")
 BACK_BUTTON_ENABLED = cfg.get("back_button_enabled", False)
+NAVBAR_ENABLED = cfg.get("navbar_enabled", False)
 UP = urlsplit(UPSTREAM)
 UP_ORIGIN = f"{UP.scheme}://{UP.netloc}"
 CDN_ORIGIN = "https://cdn.pkg.svc.ui.com"
@@ -71,6 +72,110 @@ def normalize_back_button_target(value):
 BACK_BUTTON_TARGET = normalize_back_button_target(
     cfg.get("back_button_target", "/")
 )
+
+
+def parse_navbar_config(items, subitems):
+    """Parse compact, user-editable navbar entries from the add-on options."""
+    routes = []
+    groups = {}
+    for raw in items or []:
+        parts = [part.strip() for part in str(raw).split("|", 2)]
+        if len(parts) != 3 or not parts[1]:
+            LOG.warning("Ignoring invalid navbar item: %r", raw)
+            continue
+        icon, label, target = parts
+        route = {
+            "icon": icon.removeprefix("mdi:"),
+            "label": label,
+            "target": normalize_back_button_target(target) if target else "",
+            "items": [],
+        }
+        routes.append(route)
+        groups[label.casefold()] = route
+    for raw in subitems or []:
+        parts = [part.strip() for part in str(raw).split("|", 3)]
+        if len(parts) != 4 or not parts[0] or not parts[2] or not parts[3]:
+            LOG.warning("Ignoring invalid navbar submenu item: %r", raw)
+            continue
+        group, icon, label, target = parts
+        parent = groups.get(group.casefold())
+        if not parent:
+            LOG.warning("Ignoring submenu item for unknown navbar group %r", group)
+            continue
+        parent["items"].append({
+            "icon": icon.removeprefix("mdi:"),
+            "label": label,
+            "target": normalize_back_button_target(target),
+        })
+    return routes
+
+
+NAVBAR_ROUTES = parse_navbar_config(
+    cfg.get("navbar_items", []), cfg.get("navbar_subitems", [])
+)
+
+
+ICON_PATHS = {
+    "home": "M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z",
+    "home-outline": "M12 5.69 17 10.19V18h-2v-6H9v6H7v-7.81zM12 3 2 12h3v8h6v-6h2v6h6v-8z",
+    "floor-plan": "M3 3h8v2H5v6h6v8h8v-6h-4v-2h6v10H9v-8H3zm10 0h8v6h-2V5h-6z",
+    "home-heart": "M12 3 2 12h3v8h14v-8h3zm0 4.1 5 4.5V18H7v-6.4zM12 17s-3-1.8-3-4a2 2 0 0 1 3-1.7A2 2 0 0 1 15 13c0 2.2-3 4-3 4",
+    "play-circle": "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20m-2 14.5v-9l6 4.5z",
+    "play-circle-outline": "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20m0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16m-2-3.5 6-4.5-6-4.5z",
+    "machine-image": "M4 4h16v16H4zm2 2v8l3-3 3 3 2-2 4 4V6zm1 11h10l-5-5-2 2-1-1z",
+    "account-group": "M16 13c2.67 0 8 1.34 8 4v3h-8v-3c0-1.13-.44-2.1-1.18-2.9C15.22 14.03 15.61 14 16 14m-8-1a4 4 0 1 0 0-8 4 4 0 0 0 0 8m0 2c-2.67 0-8 1.34-8 4v2h14v-2c0-2.66-5.33-4-8-4m8-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6",
+    "cog": "M19.43 12.98c.04-.32.07-.65.07-.98s-.03-.66-.08-.98l2.11-1.65-2-3.46-2.49 1a7.2 7.2 0 0 0-1.69-.98L15 3.27h-4l-.39 2.66c-.61.25-1.17.59-1.69.98l-2.49-1-2 3.46 2.11 1.65c-.05.32-.08.66-.08.98s.03.66.08.98l-2.11 1.65 2 3.46 2.49-1c.52.4 1.08.73 1.69.98l.39 2.66h4l.39-2.66c.61-.25 1.17-.58 1.69-.98l2.49 1 2-3.46zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7",
+    "cog-outline": "M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8m0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4m8.94-2.66-1.72-1.34.04-.5.01-.5-.05-1-1.72-1.34.94-2.08-1.41-1.41-2.08.94L13.66 2h-2.32L10 4.11l-2.08-.94-1.41 1.41L7.45 6.66 5.73 8l-.05 1 .05 1 1.72 1.34-.94 2.08 1.41 1.41 2.08-.94 1.34 1.72h2.32L15 13.89l2.08.94 1.41-1.41z",
+    "camera": "M9 3 7.17 5H4a2 2 0 0 0-2 2v12h20V7a2 2 0 0 0-2-2h-3.17L15 3zm3 5a5 5 0 1 1 0 10 5 5 0 0 1 0-10",
+    "cctv": "M4 4h16v12H4zm2 2v8h12V6zm2 12h8v2H8z",
+    "settings": "M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8",
+}
+
+
+def navbar_icon(name):
+    """Return a self-contained SVG; unknown icons get a neutral circle."""
+    path = ICON_PATHS.get(name, "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18m0 5a4 4 0 1 1 0 8 4 4 0 0 1 0-8")
+    return (
+        '<svg viewBox="0 0 24 24" aria-hidden="true">'
+        f'<path d="{path}"/></svg>'
+    )
+
+
+def navbar_markup(routes):
+    if not NAVBAR_ENABLED or not routes:
+        return "", ""
+    rendered = []
+    for index, route in enumerate(routes):
+        label = html.escape(route["label"], quote=True)
+        icon = navbar_icon(route["icon"])
+        if route["items"]:
+            popup_items = []
+            for child in route["items"]:
+                child_label = html.escape(child["label"], quote=True)
+                child_target = html.escape(child["target"], quote=True)
+                popup_items.append(
+                    f'<a class="ha-nav-subitem" href="{child_target}" target="_top">'
+                    f'{navbar_icon(child["icon"])}<span>{child_label}</span></a>'
+                )
+            rendered.append(
+                f'<div class="ha-nav-route"><button class="ha-nav-button" type="button" '
+                f'data-navbar-popup="navbar-popup-{index}" aria-expanded="false" '
+                f'aria-label="{label}" title="{label}">{icon}</button>'
+                f'<div class="ha-nav-popup" id="navbar-popup-{index}" hidden>'
+                f'<div class="ha-nav-popup-title">{label}</div>{"".join(popup_items)}</div></div>'
+            )
+        else:
+            target = html.escape(route["target"], quote=True)
+            rendered.append(
+                f'<a class="ha-nav-button" href="{target}" target="_top" '
+                f'aria-label="{label}" title="{label}">{icon}</a>'
+            )
+    markup = (
+        '<nav id="ha-navbar" aria-label="Home Assistant navigation">'
+        '<div class="ha-navbar-card">' + "".join(rendered) + '</div></nav>'
+    )
+    script = """document.querySelectorAll('[data-navbar-popup]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const id=b.dataset.navbarPopup,p=document.getElementById(id),open=p.hidden;document.querySelectorAll('.ha-nav-popup').forEach(x=>x.hidden=true);document.querySelectorAll('[data-navbar-popup]').forEach(x=>x.setAttribute('aria-expanded','false'));p.hidden=!open;b.setAttribute('aria-expanded',String(open))}));document.addEventListener('click',()=>{document.querySelectorAll('.ha-nav-popup').forEach(x=>x.hidden=true);document.querySelectorAll('[data-navbar-popup]').forEach(x=>x.setAttribute('aria-expanded','false'))});document.addEventListener('keydown',e=>{if(e.key==='Escape')document.dispatchEvent(new Event('click'))});"""
+    return markup, script
 
 
 def public_entry_url():
@@ -119,14 +224,22 @@ def embedded_wrapper():
             "document.getElementById('ha-back').addEventListener('click',()=>"
             "window.open(" + target_json + ",'_top'));"
         )
+    navbar, navbar_script = navbar_markup(NAVBAR_ROUTES)
     body = f"""<!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>UniFi Protect</title><style>
 html,body,iframe{{width:100%;height:100%;margin:0;border:0;background:#f7f8fa;overflow:hidden}}
 #ha-back{{position:fixed;top:max(12px,env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left));z-index:2147483647;width:46px;height:46px;padding:0;border:1px solid rgba(255,255,255,.28);border-radius:50%;background:#071b38e8;color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 5px 18px rgba(0,0,0,.28);backdrop-filter:blur(6px)}}
 #ha-back:hover{{background:#0b63ce}}#ha-back:focus-visible{{outline:3px solid #18c8ff;outline-offset:2px}}#ha-back svg{{width:25px;height:25px;fill:currentColor}}
-</style></head><body>{back_button}<iframe id="protect" title="UniFi Protect" allow="fullscreen; autoplay" referrerpolicy="same-origin"></iframe>
-<script>{back_script}document.getElementById('protect').src={target_script};</script></body></html>"""
+#ha-navbar{{position:fixed;z-index:2147483646;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f5f7fb}}
+.ha-navbar-card{{display:flex;align-items:center;gap:3px;padding:9px 11px;border:1px solid rgba(255,255,255,.09);border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.015)),rgba(19,25,34,.96);box-shadow:0 10px 28px rgba(0,0,0,.28)}}
+.ha-nav-route{{position:relative}}.ha-nav-button{{width:58px;height:58px;box-sizing:border-box;border:0;border-radius:17px;background:transparent;color:#dfe5ee;display:grid;place-items:center;cursor:pointer;text-decoration:none;transition:background .16s,transform .16s,color .16s}}
+.ha-nav-button:hover,.ha-nav-button[aria-expanded="true"]{{background:rgba(255,255,255,.08);color:#45a3ff;transform:translateY(-1px)}}.ha-nav-button:focus-visible{{outline:3px solid #18c8ff;outline-offset:1px}}
+.ha-nav-button svg{{width:28px;height:28px;fill:currentColor}}.ha-nav-popup{{position:absolute;left:50%;bottom:72px;transform:translateX(-50%);min-width:220px;max-height:min(62vh,520px);overflow:auto;padding:9px;border:1px solid rgba(255,255,255,.09);border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.015)),rgba(19,25,34,.98);box-shadow:0 18px 38px rgba(0,0,0,.34)}}
+.ha-nav-popup[hidden]{{display:none}}.ha-nav-popup-title{{padding:8px 11px;color:#8f9aaa;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}}.ha-nav-subitem{{display:flex;align-items:center;gap:12px;min-height:46px;padding:4px 11px;border-radius:16px;color:#f5f7fb;text-decoration:none;font-size:14px;font-weight:700;white-space:nowrap}}.ha-nav-subitem:hover{{background:rgba(255,255,255,.07)}}.ha-nav-subitem svg{{width:22px;height:22px;flex:none;fill:currentColor;color:#aeb8c7}}
+@media(max-width:768px){{#ha-navbar{{bottom:max(20px,env(safe-area-inset-bottom));width:calc(100vw - 24px)}}.ha-navbar-card{{overflow-x:auto;justify-content:space-around;padding:8px;border-radius:22px;scrollbar-width:none}}.ha-navbar-card::-webkit-scrollbar{{display:none}}.ha-nav-button{{width:48px;height:52px;border-radius:15px}}.ha-nav-button svg{{width:25px;height:25px}}.ha-nav-popup{{position:fixed;left:12px;right:12px;bottom:84px;transform:none;min-width:0}}}}
+</style></head><body>{back_button}{navbar}<iframe id="protect" title="UniFi Protect" allow="fullscreen; autoplay" referrerpolicy="same-origin"></iframe>
+<script>{back_script}{navbar_script}document.getElementById('protect').src={target_script};</script></body></html>"""
     return web.Response(
         text=body,
         content_type="text/html",
