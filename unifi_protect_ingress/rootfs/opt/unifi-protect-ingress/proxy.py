@@ -25,6 +25,7 @@ REWRITE_PATHS = sorted(set(cfg.get("rewrite_paths", [])), key=len, reverse=True)
 VERIFY_SSL = cfg.get("verify_ssl", False)
 DEBUG = cfg.get("debug", False)
 PUBLIC_URL = cfg.get("public_url", "").strip().rstrip("/")
+BACK_BUTTON_ENABLED = cfg.get("back_button_enabled", False)
 UP = urlsplit(UPSTREAM)
 UP_ORIGIN = f"{UP.scheme}://{UP.netloc}"
 CDN_ORIGIN = "https://cdn.pkg.svc.ui.com"
@@ -54,6 +55,22 @@ def load_access_token():
 
 
 ACCESS_TOKEN = load_access_token()
+
+
+def normalize_back_button_target(value):
+    """Return an HA path or absolute HTTP(S) URL safe for top-level navigation."""
+    value = str(value or "/").strip()
+    parsed = urlsplit(value)
+    if parsed.scheme in {"http", "https"} and parsed.netloc:
+        return value
+    # Treat friendly values such as `lovelace/home` as HA-root-relative paths.
+    # Protocol-relative URLs are deliberately reduced to a local path.
+    return "/" + value.lstrip("/") if value.strip("/") else "/"
+
+
+BACK_BUTTON_TARGET = normalize_back_button_target(
+    cfg.get("back_button_target", "/")
+)
 
 
 def public_entry_url():
@@ -91,12 +108,25 @@ def embedded_wrapper():
             "+'&next='+encodeURIComponent(" + json.dumps(START_PATH) + ")"
         )
         frame_sources = "http: https:"
+    back_button = ""
+    back_script = ""
+    if BACK_BUTTON_ENABLED:
+        back_button = """<button id="ha-back" type="button" title="Back to Home Assistant" aria-label="Back to Home Assistant">
+<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.42-1.41L7.83 13H20v-2z"/></svg>
+</button>"""
+        target_json = json.dumps(BACK_BUTTON_TARGET).replace("<", "\\u003c")
+        back_script = (
+            "document.getElementById('ha-back').addEventListener('click',()=>"
+            "window.open(" + target_json + ",'_top'));"
+        )
     body = f"""<!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>UniFi Protect</title><style>
 html,body,iframe{{width:100%;height:100%;margin:0;border:0;background:#f7f8fa;overflow:hidden}}
-</style></head><body><iframe id="protect" title="UniFi Protect" allow="fullscreen; autoplay" referrerpolicy="same-origin"></iframe>
-<script>document.getElementById('protect').src={target_script};</script></body></html>"""
+#ha-back{{position:fixed;top:max(12px,env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left));z-index:2147483647;width:46px;height:46px;padding:0;border:1px solid rgba(255,255,255,.28);border-radius:50%;background:#071b38e8;color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 5px 18px rgba(0,0,0,.28);backdrop-filter:blur(6px)}}
+#ha-back:hover{{background:#0b63ce}}#ha-back:focus-visible{{outline:3px solid #18c8ff;outline-offset:2px}}#ha-back svg{{width:25px;height:25px;fill:currentColor}}
+</style></head><body>{back_button}<iframe id="protect" title="UniFi Protect" allow="fullscreen; autoplay" referrerpolicy="same-origin"></iframe>
+<script>{back_script}document.getElementById('protect').src={target_script};</script></body></html>"""
     return web.Response(
         text=body,
         content_type="text/html",

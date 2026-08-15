@@ -3,6 +3,7 @@
   "verify_ssl": false,
   "start_path": "/protect/",
   "rewrite_paths": ["/proxy/protect", "/api/ws", "/wss", "/protect"],
-  "debug": false
+  "debug": false,
+  "back_button_enabled": false,
+  "back_button_target": "/lovelace/home"
 }
-
