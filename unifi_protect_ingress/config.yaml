@@ -4,29 +4,20 @@ slug: unifi-protect-ingress
 description: Shows the native UniFi Protect web interface in the Home Assistant sidebar
 url: https://github.com/MRDonnii/ha-unifi-protect-ingress/tree/main/unifi_protect_ingress
 image: ghcr.io/mrdonnii/ha-unifi-protect-ingress
-startup: application
-boot: auto
 init: false
 stage: experimental
 ingress: true
-ingress_port: 8099
 ingress_entry: /protect/dashboard
 ingress_stream: true
 panel_icon: mdi:cctv
 panel_title: Protect
-panel_admin: true
-watchdog: http://[HOST]:[PORT:8099]/health
 arch:
   - aarch64
   - amd64
-  - armhf
-  - armv7
-  - i386
 ports:
   8099/tcp: 8099
 ports_description:
   8099/tcp: Root proxy used by panel_iframe mode
-map: []
 options:
   protect_url: "https://192.168.1.1"
   verify_ssl: false

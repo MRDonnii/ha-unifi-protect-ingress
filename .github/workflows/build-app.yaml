@@ -16,9 +16,9 @@ jobs:
       build_matrix: ${{ steps.matrix.outputs.matrix }}
       image_name: ${{ steps.normalize.outputs.image_name }}
       registry_prefix: ${{ steps.normalize.outputs.registry_prefix }}
-      version: ${{ steps.info.outputs.version }}
-      name: ${{ steps.info.outputs.name }}
-      description: ${{ steps.info.outputs.description }}
+      version: ${{ steps.normalize.outputs.version }}
+      name: ${{ steps.normalize.outputs.name }}
+      description: ${{ steps.normalize.outputs.description }}
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Read app information
@@ -29,10 +29,16 @@ jobs:
       - name: Normalize image name
         id: normalize
         env:
-          IMAGE: ${{ steps.info.outputs.image }}
+          IMAGE: ${{ fromJSON(steps.info.outputs.image) }}
+          VERSION: ${{ fromJSON(steps.info.outputs.version) }}
+          APP_NAME: ${{ fromJSON(steps.info.outputs.name) }}
+          DESCRIPTION: ${{ fromJSON(steps.info.outputs.description) }}
         run: |
           echo "image_name=${IMAGE##*/}" >> "$GITHUB_OUTPUT"
           echo "registry_prefix=${IMAGE%/*}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "name=${APP_NAME}" >> "$GITHUB_OUTPUT"
+          echo "description=${DESCRIPTION}" >> "$GITHUB_OUTPUT"
       - name: Prepare architecture matrix
         id: matrix
         uses: home-assistant/builder/actions/prepare-multi-arch-matrix@2026.06.0
@@ -92,4 +98,3 @@ jobs:
             ${{ needs.prepare.outputs.version }}
             latest
           registry-prefix: ${{ needs.prepare.outputs.registry_prefix }}
-
