@@ -26,3 +26,12 @@ configuration:
   back_button_target:
     name: Tilbage-knappens HA-adresse
     description: HA-stien eller den fulde adresse som knappen skal åbne, f.eks. /lovelace/home
+  navbar_enabled:
+    name: Vis Home Assistant-navbar
+    description: Vis en flydende navbar nederst oven på Protect
+  navbar_items:
+    name: Navbar-knapper
+    description: Én knap pr. linje i formatet ikon|navn|HA-sti. Lad stien være tom for en gruppe med undermenu.
+  navbar_subitems:
+    name: Navbar-undermenuer
+    description: Én undermenu pr. linje i formatet gruppenavn|ikon|navn|HA-sti

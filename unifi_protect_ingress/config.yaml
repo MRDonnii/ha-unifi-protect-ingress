@@ -1,5 +1,5 @@
 name: UniFi Protect Ingress
-version: "0.3.0"
+version: "0.4.0"
 slug: unifi-protect-ingress
 description: Shows the native UniFi Protect web interface in the Home Assistant sidebar
 url: https://github.com/MRDonnii/ha-unifi-protect-ingress/tree/main/unifi_protect_ingress
@@ -32,6 +32,11 @@ options:
   cloudflare_tunnel_token: ""
   back_button_enabled: false
   back_button_target: "/"
+  navbar_enabled: false
+  navbar_items:
+    - "home|Home|/"
+    - "camera|Cameras|/dashboard-camera/0"
+  navbar_subitems: []
 schema:
   protect_url: url
   verify_ssl: bool
@@ -43,3 +48,8 @@ schema:
   cloudflare_tunnel_token: password?
   back_button_enabled: bool
   back_button_target: str
+  navbar_enabled: bool
+  navbar_items:
+    - str
+  navbar_subitems:
+    - str

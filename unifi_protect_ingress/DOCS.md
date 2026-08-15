@@ -24,6 +24,28 @@ Paths without a leading slash are automatically treated as Home Assistant paths.
 drawn by the ingress wrapper and therefore remains available while navigating between Protect
 pages.
 
+## Optional Home Assistant navbar
+
+Turn on **Show Home Assistant navbar** to display a floating, responsive navigation bar at the
+bottom of Protect. It stays available while you move between Protect pages, and its links always
+open in the main Home Assistant window.
+
+Each entry in **Navbar buttons** uses `icon|label|HA path`:
+
+- `home|Home|/`
+- `floor-plan|Rooms|/lovelace/rooms`
+- `cog|System|` (an empty path creates a submenu group)
+
+Each entry in **Navbar submenu items** uses `group label|icon|label|HA path`:
+
+- `System|settings|Settings|/config/dashboard`
+- `System|cctv|Cameras|/dashboard-camera/0`
+
+Group labels must exactly match a group in **Navbar buttons**. Use short Material Design icon names
+without the `mdi:` prefix. Common icons have matching built-in artwork; unknown names receive a
+neutral fallback icon. The navbar intentionally does not execute Lovelace templates or entity badge
+JavaScript, because the Protect frame must not receive a Home Assistant access token.
+
 ## Cloudflare/HTTPS mode
 
 Use this mode when Home Assistant is opened through an HTTPS URL or the Companion App:
