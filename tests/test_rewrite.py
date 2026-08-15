@@ -79,6 +79,57 @@ class RewriteTests(unittest.TestCase):
             proxy.normalize_back_button_target("//evil.example/dashboard"),
         )
 
+    def test_navbar_parses_links_and_submenus(self):
+        routes = proxy.parse_navbar_config(
+            ["home|Hjem|/hjem-overblik/hyacintvej", "home-heart|Hverdag|"],
+            ["Hverdag|water|Vand|/energi-overblik/vand"],
+        )
+        self.assertEqual("/hjem-overblik/hyacintvej", routes[0]["target"])
+        self.assertEqual("Hverdag", routes[1]["label"])
+        self.assertEqual("/energi-overblik/vand", routes[1]["items"][0]["target"])
+
+    def test_navbar_markup_contains_links_and_popup(self):
+        original = proxy.NAVBAR_ENABLED
+        try:
+            proxy.NAVBAR_ENABLED = True
+            routes = proxy.parse_navbar_config(
+                ["home|Hjem|/hjem", "cog|System|"],
+                ["System|settings|Indstillinger|/settings"],
+            )
+            markup, script = proxy.navbar_markup(routes)
+            self.assertIn('id="ha-navbar"', markup)
+            self.assertIn('href="/hjem" target="_top"', markup)
+            self.assertIn('data-navbar-popup="navbar-popup-1"', markup)
+            self.assertIn('href="/settings" target="_top"', markup)
+            self.assertIn("aria-expanded", script)
+        finally:
+            proxy.NAVBAR_ENABLED = original
+
+    def test_navbar_is_absent_when_disabled(self):
+        original = proxy.NAVBAR_ENABLED
+        try:
+            proxy.NAVBAR_ENABLED = False
+            markup, script = proxy.navbar_markup([
+                {"icon": "home", "label": "Home", "target": "/", "items": []}
+            ])
+            self.assertEqual(("", ""), (markup, script))
+        finally:
+            proxy.NAVBAR_ENABLED = original
+
+    def test_navbar_escapes_labels_and_protocol_relative_targets(self):
+        original = proxy.NAVBAR_ENABLED
+        try:
+            proxy.NAVBAR_ENABLED = True
+            routes = proxy.parse_navbar_config(
+                ['home|<script>alert("x")</script>|//evil.example/path'], []
+            )
+            markup, _ = proxy.navbar_markup(routes)
+            self.assertNotIn("<script>", markup)
+            self.assertIn("&lt;script&gt;", markup)
+            self.assertIn('href="/evil.example/path"', markup)
+        finally:
+            proxy.NAVBAR_ENABLED = original
+
     def test_absolute_protect_paths_are_scoped(self):
         body = b'<html><head></head><body><script src="/proxy/protect/app.js"></script></body></html>'
         result = proxy.rewrite_body(body, "text/html", "/api/hassio_ingress/token")

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0
+
+- Add an optional responsive Home Assistant navbar over the Protect interface.
+- Support configurable direct links and grouped pop-up submenus.
+- Keep navigation local to the top-level Home Assistant window without exposing an HA token.
+
 ## 0.3.0
 
 - Add an optional floating back button above the Protect interface.
