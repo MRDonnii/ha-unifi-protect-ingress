@@ -1,0 +1,2 @@
+#!/command/with-contenv bashio
+exec python3 /opt/unifi-protect-ingress/proxy.py

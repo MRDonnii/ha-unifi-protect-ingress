@@ -1,0 +1,22 @@
+configuration:
+  protect_url:
+    name: UniFi console URL
+    description: Direct LAN URL for the console, for example https://192.168.1.1
+  verify_ssl:
+    name: Verify the console certificate
+    description: Disable this only for the usual self-signed UniFi certificate
+  start_path:
+    name: Start path
+    description: The page opened from the sidebar; normally /protect/
+  rewrite_paths:
+    name: Absolute paths to rewrite
+    description: UniFi paths that must be placed below the dynamic Home Assistant ingress path
+  debug:
+    name: Debug logging
+    description: Log proxied requests while troubleshooting
+  public_url:
+    name: Public HTTPS URL
+    description: Optional Cloudflare hostname, for example https://protect.example.com. Required for the HA mobile app when HA itself uses HTTPS.
+  cloudflare_tunnel_token:
+    name: Cloudflare Tunnel token
+    description: Optional token for a dedicated remotely-managed tunnel. The tunnel route must point its public hostname to http://localhost:8099.

@@ -1,0 +1,16 @@
+#!/command/with-contenv bashio
+
+TOKEN="$(bashio::config 'cloudflare_tunnel_token' '')"
+
+if bashio::var.is_empty "${TOKEN}"; then
+  bashio::log.info "Cloudflare Tunnel is disabled (no tunnel token configured)"
+  exec sleep infinity
+fi
+
+umask 077
+printf '%s' "${TOKEN}" > /data/cloudflare-tunnel-token
+unset TOKEN
+
+bashio::log.info "Starting the optional Cloudflare Tunnel connector"
+exec cloudflared tunnel --no-autoupdate --loglevel info run \
+  --token-file /data/cloudflare-tunnel-token

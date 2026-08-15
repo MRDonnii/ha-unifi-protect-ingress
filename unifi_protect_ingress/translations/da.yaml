@@ -1,0 +1,22 @@
+configuration:
+  protect_url:
+    name: UniFi-konsollens adresse
+    description: Direkte LAN-adresse til konsollen, f.eks. https://192.168.1.1
+  verify_ssl:
+    name: Kontrollér konsollens certifikat
+    description: Slå kun fra ved UniFi-konsollens normale selvsignerede certifikat
+  start_path:
+    name: Startsti
+    description: Siden der åbnes fra sidepanelet; normalt /protect/
+  rewrite_paths:
+    name: Absolutte stier der omskrives
+    description: UniFi-stier som skal placeres under Home Assistants dynamiske ingress-sti
+  debug:
+    name: Fejllogning
+    description: Log proxykald under fejlsøgning
+  public_url:
+    name: Offentlig HTTPS-adresse
+    description: Valgfrit Cloudflare-værtsnavn, f.eks. https://protect.example.com. Kræves i HA-appen, når HA selv bruger HTTPS.
+  cloudflare_tunnel_token:
+    name: Cloudflare Tunnel-token
+    description: Valgfri token til en dedikeret fjernadministreret tunnel. Tunnelruten skal pege værtsnavnet på http://localhost:8099.
