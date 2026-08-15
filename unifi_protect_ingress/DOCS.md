@@ -10,6 +10,20 @@ console certificate, turn **Verify the console certificate** off.
 This app proxies the real Protect interface; it does not replace Home Assistant's official UniFi
 Protect integration for camera entities, events and automations.
 
+## Optional back button
+
+Turn on **Show back button** to place a floating arrow in the upper-left corner of Protect. Set
+**Back button HA destination** to the page it should open. Examples:
+
+- `/` for the Home Assistant start page
+- `/lovelace/home` for a Lovelace view
+- `/dashboard-camera/0` for a custom camera dashboard
+- `https://ha.example.com/dashboard/0` when a complete HA address is required
+
+Paths without a leading slash are automatically treated as Home Assistant paths. The button is
+drawn by the ingress wrapper and therefore remains available while navigating between Protect
+pages.
+
 ## Cloudflare/HTTPS mode
 
 Use this mode when Home Assistant is opened through an HTTPS URL or the Companion App:
