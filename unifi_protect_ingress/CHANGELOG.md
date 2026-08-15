@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0
+
+- Add an optional floating back button above the Protect interface.
+- Allow the return destination to be any HA-root-relative path or absolute HTTP(S) URL.
+
 ## 0.2.2
 
 - Add an original project logo and Home Assistant app icon.

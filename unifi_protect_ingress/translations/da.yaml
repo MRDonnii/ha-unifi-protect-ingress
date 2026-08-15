@@ -20,3 +20,9 @@ configuration:
   cloudflare_tunnel_token:
     name: Cloudflare Tunnel-token
     description: Valgfri token til en dedikeret fjernadministreret tunnel. Tunnelruten skal pege værtsnavnet på http://localhost:8099.
+  back_button_enabled:
+    name: Vis tilbage-knap
+    description: Vis en flydende tilbage-knap oven på Protect-visningen
+  back_button_target:
+    name: Tilbage-knappens HA-adresse
+    description: HA-stien eller den fulde adresse som knappen skal åbne, f.eks. /lovelace/home

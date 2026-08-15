@@ -45,6 +45,40 @@ class RewriteTests(unittest.TestCase):
         finally:
             proxy.PUBLIC_ENTRY = original
 
+    def test_back_button_can_be_enabled_with_ha_target(self):
+        original_enabled = proxy.BACK_BUTTON_ENABLED
+        original_target = proxy.BACK_BUTTON_TARGET
+        try:
+            proxy.BACK_BUTTON_ENABLED = True
+            proxy.BACK_BUTTON_TARGET = "/dashboard-camera/0"
+            body = proxy.embedded_wrapper().body.decode("utf-8")
+            self.assertIn('id="ha-back"', body)
+            self.assertIn('window.open("/dashboard-camera/0",\'_top\')', body)
+        finally:
+            proxy.BACK_BUTTON_ENABLED = original_enabled
+            proxy.BACK_BUTTON_TARGET = original_target
+
+    def test_back_button_is_absent_when_disabled(self):
+        original = proxy.BACK_BUTTON_ENABLED
+        try:
+            proxy.BACK_BUTTON_ENABLED = False
+            body = proxy.embedded_wrapper().body.decode("utf-8")
+            self.assertNotIn('id="ha-back"', body)
+        finally:
+            proxy.BACK_BUTTON_ENABLED = original
+
+    def test_back_button_target_accepts_paths_and_http_urls(self):
+        self.assertEqual("/lovelace/home", proxy.normalize_back_button_target("lovelace/home"))
+        self.assertEqual("/", proxy.normalize_back_button_target(""))
+        self.assertEqual(
+            "https://ha.example.com/dashboard/0",
+            proxy.normalize_back_button_target("https://ha.example.com/dashboard/0"),
+        )
+        self.assertEqual(
+            "/evil.example/dashboard",
+            proxy.normalize_back_button_target("//evil.example/dashboard"),
+        )
+
     def test_absolute_protect_paths_are_scoped(self):
         body = b'<html><head></head><body><script src="/proxy/protect/app.js"></script></body></html>'
         result = proxy.rewrite_body(body, "text/html", "/api/hassio_ingress/token")
