@@ -1,10 +1,34 @@
-# UniFi Protect Ingress for Home Assistant
+<p align="center">
+  <img src="unifi_protect_ingress/logo.png" width="180" alt="UniFi Protect Ingress logo">
+</p>
 
-[![Open in Home Assistant](https://my.home-assistant.io/badges/supervisor_addon.svg)](https://my.home-assistant.io/redirect/supervisor_addon_store/?repository_url=https%3A%2F%2Fgithub.com%2FMRDonnii%2Fha-unifi-protect-ingress)
+<h1 align="center">UniFi Protect Ingress for Home Assistant</h1>
 
-Experimental Home Assistant app/add-on that places the native UniFi Protect interface in the
-Home Assistant sidebar. It is based on the ingress pattern used by Frigate Proxy, with extra
-handling required by UniFi OS applications that assume they run at the web-server root.
+<p align="center">
+  The native UniFi Protect web interface, embedded securely in the Home Assistant sidebar.
+</p>
+
+<p align="center">
+  <a href="https://my.home-assistant.io/redirect/supervisor_addon_store/?repository_url=https%3A%2F%2Fgithub.com%2FMRDonnii%2Fha-unifi-protect-ingress"><img src="https://my.home-assistant.io/badges/supervisor_addon.svg" alt="Open in Home Assistant"></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/MRDonnii/ha-unifi-protect-ingress/actions/workflows/lint.yaml"><img src="https://github.com/MRDonnii/ha-unifi-protect-ingress/actions/workflows/lint.yaml/badge.svg" alt="Lint status"></a>
+  <a href="https://github.com/MRDonnii/ha-unifi-protect-ingress/actions/workflows/builder.yaml"><img src="https://github.com/MRDonnii/ha-unifi-protect-ingress/actions/workflows/builder.yaml/badge.svg" alt="Build status"></a>
+  <a href="https://github.com/MRDonnii/ha-unifi-protect-ingress/releases/latest"><img src="https://img.shields.io/github/v/release/MRDonnii/ha-unifi-protect-ingress" alt="Latest release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/MRDonnii/ha-unifi-protect-ingress" alt="MIT license"></a>
+</p>
+
+This experimental Home Assistant app/add-on follows the ingress pattern used by Frigate Proxy,
+with additional handling for UniFi OS applications that expect to run at the web-server root.
+
+## Requirements
+
+- Home Assistant OS or Home Assistant Supervised
+- A UniFi console running Protect, reachable from Home Assistant over the LAN
+- A 64-bit Intel/AMD or ARM Home Assistant host
+- A local UniFi OS account is recommended; credentials are entered directly into UniFi and are
+  never stored in this app's configuration
 
 ## What it handles
 
@@ -22,36 +46,17 @@ handling required by UniFi OS applications that assume they run at the web-serve
 - automatic local embedding through the current HA hostname and port 8099 when no public URL is set
 - per-installation root-proxy authorization and an administrator-only HA panel
 
-## Install from GitHub (Home Assistant OS or Supervised)
-
-After this folder has been published as the public repository
-`https://github.com/MRDonnii/ha-unifi-protect-ingress` and its first GitHub Actions build has
-completed:
+## Quick installation
 
 1. Click **Open in Home Assistant** above, or open **Settings -> Apps -> App store -> Repositories**.
 2. Add `https://github.com/MRDonnii/ha-unifi-protect-ingress`.
-3. Select **UniFi Protect Ingress**, install it, and set `protect_url`.
-4. Start the app and enable **Show in sidebar**.
+3. Select **UniFi Protect Ingress** and install it.
+4. Set `protect_url` to the console's direct LAN URL, for example `https://192.168.1.1`.
+5. Start the app, enable **Show in sidebar**, and sign in to UniFi Protect.
 
-If installation reports `401 Unauthorized` while downloading the image, open the package on the
-GitHub repository's **Packages** page, choose **Package settings -> Change visibility**, and make
-the container package public.
+The prebuilt container is public, so no GitHub account or registry login is required.
 
-## Publish this repository
-
-1. Create a public, empty GitHub repository named `ha-unifi-protect-ingress` under `MRDonnii`.
-2. Push the contents of this directory to its `main` branch.
-3. Open the repository's **Actions** page. The lint workflow validates the app and runs unit tests;
-   the build workflow creates and publishes all declared CPU architectures to GitHub Container
-   Registry.
-4. Make the resulting `ha-unifi-protect-ingress` container package public if GitHub did not do so
-   automatically.
-5. Test the Home Assistant installation link above before announcing the repository.
-
-The `version` in `unifi_protect_ingress/config.yaml` is both the add-on version and published
-container tag. Increase it for every released change and document the release in `CHANGELOG.md`.
-
-## Install locally before the first GitHub build
+## Local development installation
 
 1. Copy the `unifi_protect_ingress` directory into `/addons/unifi_protect_ingress` on the Home
    Assistant machine. The Studio Code Server, Samba share or Terminal/SSH app can do this.

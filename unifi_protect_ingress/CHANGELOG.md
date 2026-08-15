@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.2
+
+- Add an original project logo and Home Assistant app icon.
+- Refresh the public README with status badges, requirements and a shorter installation guide.
+
 ## 0.2.1
 
 - Require a random per-installation cookie for the exposed root proxy.

@@ -1,5 +1,5 @@
 name: UniFi Protect Ingress
-version: "0.2.1"
+version: "0.2.2"
 slug: unifi-protect-ingress
 description: Shows the native UniFi Protect web interface in the Home Assistant sidebar
 url: https://github.com/MRDonnii/ha-unifi-protect-ingress/tree/main/unifi_protect_ingress
