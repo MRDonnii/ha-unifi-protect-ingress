@@ -81,10 +81,10 @@ class RewriteTests(unittest.TestCase):
 
     def test_navbar_parses_links_and_submenus(self):
         routes = proxy.parse_navbar_config(
-            ["home|Hjem|/hjem-overblik/hyacintvej", "home-heart|Hverdag|"],
+            ["home|Hjem|/home/overview", "home-heart|Hverdag|"],
             ["Hverdag|water|Vand|/energi-overblik/vand"],
         )
-        self.assertEqual("/hjem-overblik/hyacintvej", routes[0]["target"])
+        self.assertEqual("/home/overview", routes[0]["target"])
         self.assertEqual("Hverdag", routes[1]["label"])
         self.assertEqual("/energi-overblik/vand", routes[1]["items"][0]["target"])
 
