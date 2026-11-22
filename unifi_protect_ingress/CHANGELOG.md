@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2
+
+- Maintenance: update test after the repository move. No functional changes.
+
 ## 0.4.1
 
 - Cleanup: personal examples removed. No functional changes.
